@@ -1,27 +1,23 @@
-import {
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, IsNull } from 'typeorm';
-import { Url } from './entities/url.entity';
+import { IsNull, Repository } from 'typeorm';
 import { nanoid } from 'nanoid';
-
 import { ConfigService } from '@nestjs/config';
+
+import { Url } from './entities/url.entity';
 import { CreateUrlDto } from './dto/create-url.dto';
 import { UpdateUrlDto } from './dto/update-url.dto';
-import { User } from 'src/user/entities/user.entity';
+import { User } from '../user/entities/user.entity';
 
 @Injectable()
-export class UrlsService {
+export class UrlService {
   constructor(
     @InjectRepository(Url)
     private readonly urlRepository: Repository<Url>,
     private readonly configService: ConfigService,
-  ) { }
+  ) {}
 
-
-  async shortenUrl(
+  async shorten(
     createUrlDto: CreateUrlDto,
     user: User | null,
   ): Promise<{ shortUrl: string }> {
@@ -51,13 +47,12 @@ export class UrlsService {
     return { shortUrl: `${domain}/${shortCode}` };
   }
 
-  async findUserUrls(userId: string) {
+  async findByUserId(userId: string): Promise<Url[]> {
     return this.urlRepository.find({
       where: { userId, deletedAt: IsNull() },
       select: ['shortCode', 'originalUrl', 'clicks', 'updatedAt', 'createdAt'],
     });
   }
-
 
   async update(
     userId: string,
@@ -70,7 +65,7 @@ export class UrlsService {
 
     if (!url) {
       throw new NotFoundException(
-        'URL não encontrada ou você não tem permissão para editá-la.',
+        'URL not found or you do not have permission to edit it.',
       );
     }
 
@@ -86,7 +81,7 @@ export class UrlsService {
 
     if (result.affected === 0) {
       throw new NotFoundException(
-        'URL não encontrada ou você não tem permissão para excluí-la.',
+        'URL not found or you do not have permission to delete it.',
       );
     }
   }
@@ -97,10 +92,10 @@ export class UrlsService {
     });
 
     if (!url) {
-      throw new NotFoundException('A URL encurtada não foi encontrada.');
+      throw new NotFoundException('The shortened URL was not found.');
     }
-    await this.urlRepository.increment({ shortCode }, 'clicks', 1);
 
+    await this.urlRepository.increment({ shortCode }, 'clicks', 1);
     return url;
   }
 }

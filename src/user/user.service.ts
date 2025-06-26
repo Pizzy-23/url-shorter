@@ -9,12 +9,12 @@ export class UserService {
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
-  ) { }
+  ) {}
 
   async create(createUserDto: CreateUserDto): Promise<User> {
     const existingUser = await this.findByEmail(createUserDto.email);
     if (existingUser) {
-      throw new ConflictException('O e-mail fornecido já está em uso.');
+      throw new ConflictException('The provided email is already in use.');
     }
 
     const user = this.userRepository.create(createUserDto);
@@ -25,8 +25,11 @@ export class UserService {
     return this.userRepository.findOne({ where: { email } });
   }
 
-
   async findById(id: string): Promise<User | undefined> {
     return this.userRepository.findOne({ where: { id } });
+  }
+
+  async findAll(): Promise<User[]> {
+    return this.userRepository.find();
   }
 }
