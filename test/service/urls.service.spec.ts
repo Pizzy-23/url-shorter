@@ -5,8 +5,11 @@ import { NotFoundException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Url } from '@/urls/entities/url.entity';
 import { UrlService } from '@/urls/urls.service';
+import { MetricsService } from '@/metrics/metrics.service';
+import { User } from '@/user/entities/user.entity';
 
 type MockRepository<T = any> = Partial<Record<keyof Repository<T>, jest.Mock>>;
+
 const createMockRepository = (): MockRepository => ({
   findOne: jest.fn(),
   create: jest.fn(),
@@ -15,10 +18,15 @@ const createMockRepository = (): MockRepository => ({
   increment: jest.fn(),
 });
 
+const mockMetricsService = {
+  urlShortenedCounter: {
+    inc: jest.fn(),
+  },
+};
+
 describe('UrlService', () => {
   let service: UrlService;
   let urlRepository: MockRepository<Url>;
-  let configService: Partial<ConfigService>;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -34,12 +42,19 @@ describe('UrlService', () => {
             get: jest.fn().mockReturnValue('http://localhost:3000'),
           },
         },
+        {
+          provide: MetricsService,
+          useValue: mockMetricsService,
+        },
       ],
     }).compile();
 
     service = module.get<UrlService>(UrlService);
     urlRepository = module.get<MockRepository<Url>>(getRepositoryToken(Url));
-    configService = module.get<ConfigService>(ConfigService);
+  });
+
+  afterEach(() => {
+    jest.clearAllMocks();
   });
 
   it('should be defined', () => {
@@ -47,7 +62,7 @@ describe('UrlService', () => {
   });
 
   describe('shorten', () => {
-    it('should create and return a shortened URL', async () => {
+    it('should create a URL for an anonymous user and call metrics counter', async () => {
       const createDto = { originalUrl: 'https://google.com' };
       const user = null;
 
@@ -62,8 +77,31 @@ describe('UrlService', () => {
       const result = await service.shorten(createDto, user);
 
       expect(urlRepository.save).toHaveBeenCalled();
+      expect(mockMetricsService.urlShortenedCounter.inc).toHaveBeenCalledWith({
+        user_type: 'anonymous',
+      });
       expect(result).toHaveProperty('shortUrl');
       expect(result.shortUrl).toContain('http://localhost:3000/');
+    });
+
+    it('should create a URL for an authenticated user and call metrics counter', async () => {
+      const createDto = { originalUrl: 'https://github.com' };
+      const user = new User();
+      user.id = 'user-uuid';
+
+      urlRepository.findOne.mockResolvedValue(null);
+      urlRepository.create.mockImplementation((dto) => dto);
+      urlRepository.save.mockResolvedValue({
+        id: 2,
+        ...createDto,
+        shortCode: 'gh-mock',
+      });
+
+      await service.shorten(createDto, user);
+
+      expect(mockMetricsService.urlShortenedCounter.inc).toHaveBeenCalledWith({
+        user_type: 'authenticated',
+      });
     });
   });
 
@@ -89,7 +127,6 @@ describe('UrlService', () => {
       };
 
       urlRepository.findOne.mockResolvedValue(urlMock);
-
       await service.findByCodeAndIncrementClicks(shortCode);
 
       expect(urlRepository.increment).toHaveBeenCalledWith(
@@ -101,7 +138,6 @@ describe('UrlService', () => {
 
     it('should throw NotFoundException if URL with code does not exist', async () => {
       urlRepository.findOne.mockResolvedValue(null);
-
       await expect(
         service.findByCodeAndIncrementClicks('non-existent'),
       ).rejects.toThrow(NotFoundException);

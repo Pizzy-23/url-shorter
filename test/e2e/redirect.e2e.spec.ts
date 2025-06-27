@@ -43,7 +43,7 @@ describe('RedirectController (e2e)', () => {
       .get(`/${testUrl.shortCode}`)
       .redirects(0);
 
-    expect(response.status).toBe(301);
+    expect(response.status).toBe(302);
     expect(response.headers.location).toBe(originalUrl);
 
     const updatedUrlInDb = await urlRepository.findOneBy({ id: testUrl.id });
