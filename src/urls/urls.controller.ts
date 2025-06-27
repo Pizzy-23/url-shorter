@@ -81,11 +81,4 @@ export class UrlController {
   remove(@Param('shortCode') shortCode: string, @Req() req) {
     return this.urlService.softDelete(req.user.id, shortCode);
   }
-
-  @Get(':shortCode')
-  @Redirect()
-  async redirect(@Param('shortCode') shortCode: string) {
-    const url = await this.urlService.findByCodeAndIncrementClicks(shortCode);
-    return { url: url.originalUrl, statusCode: 301 };
-  }
 }

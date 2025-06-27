@@ -1,16 +1,25 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { LoggerModule } from 'nestjs-pino';
 
 import { AuthModule } from './auth/auth.module';
 import { UrlsModule } from './urls/urls.module';
 import { Url } from './urls/entities/url.entity';
-
 import { User } from './user/entities/user.entity';
 import { UserModule } from './user/user.module';
+import { MetricsModule } from './metrics/metrics.module';
 
 @Module({
   imports: [
+    LoggerModule.forRoot({
+      pinoHttp: {
+        transport:
+          process.env.NODE_ENV !== 'production'
+            ? { target: 'pino-pretty' }
+            : undefined,
+      },
+    }),
     ConfigModule.forRoot({
       isGlobal: true,
     }),
@@ -30,6 +39,7 @@ import { UserModule } from './user/user.module';
     }),
     UserModule,
     AuthModule,
+    MetricsModule,
     UrlsModule,
   ],
   controllers: [],
