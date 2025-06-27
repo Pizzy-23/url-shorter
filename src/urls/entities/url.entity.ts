@@ -1,45 +1,44 @@
-import { User } from 'src/user/entities/user.entity';
+import { User } from '@/user/entities/user.entity';
 import {
-    Entity,
-    PrimaryGeneratedColumn,
-    Column,
-    CreateDateColumn,
-    UpdateDateColumn,
-    DeleteDateColumn,
-    ManyToOne,
-    JoinColumn,
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  CreateDateColumn,
+  UpdateDateColumn,
+  DeleteDateColumn,
+  ManyToOne,
+  JoinColumn,
 } from 'typeorm';
 
 @Entity('urls')
 export class Url {
-    @PrimaryGeneratedColumn()
-    id: number;
+  @PrimaryGeneratedColumn()
+  id: number;
 
-    @Column({ length: 6, unique: true })
-    shortCode: string;
+  @Column({ length: 6, unique: true })
+  shortCode: string;
 
-    @Column('text')
-    originalUrl: string;
+  @Column('text')
+  originalUrl: string;
 
-    @Column({ default: 0 })
-    clicks: number;
+  @Column({ default: 0 })
+  clicks: number;
 
-    @ManyToOne(() => User, (user) => user.urls, {
-        nullable: true,
-        onDelete: 'SET NULL',
-    })
-    @JoinColumn({ name: 'userId' })
-    user: User;
+  @ManyToOne(() => User, (user) => user.urls, {
+    nullable: true,
+    onDelete: 'SET NULL',
+  })
+  user: User;
 
-    @Column({ type: 'uuid', nullable: true })
-    userId: string | null;
+  @Column({ type: 'uuid', nullable: true })
+  userId: string | null;
 
-    @CreateDateColumn()
-    createdAt: Date;
+  @CreateDateColumn()
+  createdAt: Date;
 
-    @UpdateDateColumn()
-    updatedAt: Date;
+  @UpdateDateColumn()
+  updatedAt: Date;
 
-    @DeleteDateColumn()
-    deletedAt?: Date;
+  @DeleteDateColumn()
+  deletedAt?: Date;
 }
