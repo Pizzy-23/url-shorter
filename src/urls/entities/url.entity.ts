@@ -7,7 +7,6 @@ import {
   UpdateDateColumn,
   DeleteDateColumn,
   ManyToOne,
-  JoinColumn,
 } from 'typeorm';
 
 @Entity('urls')

@@ -1,7 +1,5 @@
 import {
   Controller,
-  Post,
-  Body,
   Get,
   UseGuards,
   UseInterceptors,
@@ -13,11 +11,9 @@ import {
   ApiResponse,
   ApiBearerAuth,
 } from '@nestjs/swagger';
-import { CreateUserDto } from './dto/create-user.dto';
 import { UserService } from './user.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { User } from './entities/user.entity';
-import { UserResponseDto } from './dto/user-response.dto';
 
 @ApiTags('Users')
 @Controller('users')

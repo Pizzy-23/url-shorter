@@ -10,7 +10,6 @@ import {
   Delete,
   HttpCode,
   HttpStatus,
-  Redirect,
 } from '@nestjs/common';
 import { UrlService } from './urls.service';
 import { CreateUrlDto } from './dto/create-url.dto';

@@ -1,5 +1,4 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Url } from '@/urls/entities/url.entity';
 
 export class UserResponseDto {
   @ApiProperty({

@@ -1,9 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { ClassSerializerInterceptor, INestApplication } from '@nestjs/common';
-import { Reflector } from '@nestjs/core';
 import { UserController } from '@/user/user.controller';
 import { UserService } from '@/user/user.service';
-import { CreateUserDto } from '@/user/dto/create-user.dto';
 import { User } from '@/user/entities/user.entity';
 
 // Mock do UserService
