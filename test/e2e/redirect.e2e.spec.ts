@@ -60,7 +60,7 @@ describe('RedirectController (e2e)', () => {
   it('GET /:shortCode should return 404 for a soft-deleted URL', async () => {
     const deletedUrl = await urlRepository.save({
       originalUrl: 'https://deleted-url.com',
-      shortCode: 'del3ted',
+      shortCode: 'deletd',
       clicks: 10,
     });
     await urlRepository.softDelete({ id: deletedUrl.id });
