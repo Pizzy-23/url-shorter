@@ -1,73 +1,137 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="200" alt="Nest Logo" /></a>
-</p>
+# URL Shortener API
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+A robust, scalable, and professional REST API built with NestJS for shortening, managing, and tracking URLs. This project is fully containerized with Docker and follows industry best practices for code quality, testing, and observability.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+![Test Status](https://img.shields.io/badge/tests-passing-brightgreen) ![License](https://img.shields.io/badge/license-UNLICENSED-blue)
 
-## Description
+## Features
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+- **JWT Authentication**: Secure user registration and login system.
+- **URL Shortening**: Endpoint to shorten URLs for both anonymous and authenticated users.
+- **URL Management**: Authenticated users can list, update, and soft-delete their own URLs.
+- **Click Tracking**: Automatically counts every access to a shortened URL.
+- **Interactive API Docs**: Explore and test the API with Swagger at `/api-docs`.
+- **Dockerized Environment**: Run the entire application and database with a single command.
+- **Professional Tooling**: Code quality enforced by ESLint, Prettier, and Husky pre-commit hooks.
+- **Observability Ready**: Instrumented for logs, metrics, and tracing.
+- **Fully Tested**: Comprehensive unit test coverage for core business logic.
 
-## Installation
+---
+
+## Getting Started
+
+### Prerequisites
+
+- [Docker](https://www.docker.com/products/docker-desktop)
+- [Docker Compose](https://docs.docker.com/compose/) (usually included with Docker Desktop)
+- [Node.js](https://nodejs.org/) (v18+) and [Yarn](https://yarnpkg.com/) for local development outside Docker.
+
+### Running the Application with Docker (Recommended)
+
+This is the simplest way to get the entire environment up and running.
+
+1.  **Clone the repository:**
+
+    ```bash
+    git clone https://github.com/your-username/url-shorter.git
+    cd url-shorter
+    ```
+
+2.  **Create your environment file:**
+    Copy the example environment file and fill in your details.
+
+    ```bash
+    cp .env.example .env
+    ```
+
+    > **Important:** Make sure to set a strong, unique `JWT_SECRET`.
+
+3.  **Build and run the containers:**
+
+    ```bash
+    docker-compose up --build
+    ```
+
+    - The API will be available at `http://localhost:3000`.
+    - The interactive Swagger documentation will be at `http://localhost:3000/api-docs`.
+    - To run in the background, use `docker-compose up -d --build`.
+
+4.  **To stop the application:**
+    ```bash
+    docker-compose down
+    ```
+
+---
+
+## Testing
+
+This project has a full suite of unit tests. You can run them with:
 
 ```bash
-$ yarn install
+# Run all tests
+yarn test
+
+# Run only service tests
+yarn test:services
+
+# Run only controller tests
+yarn test:controllers
+
+# Run tests in watch mode
+yarn test:watch
 ```
 
-## Running the app
+---
 
-```bash
-# development
-$ yarn run start
+## Observability
 
-# watch mode
-$ yarn run start:dev
+This project is instrumented with the foundations for a robust observability setup, all controllable via environment variables.
 
-# production mode
-$ yarn run start:prod
-```
+### Structured Logging
 
-## Test
+The application uses **Pino** for high-performance, structured (JSON) logging, which is ideal for production environments.
 
-```bash
-# unit tests
-$ yarn run test
+- **In Development**: Logs are formatted with `pino-pretty` for readability.
+- **In Production**: Logs are output as JSON, ready for ingestion by services like Datadog, Splunk, or the ELK stack.
+  The log level can be configured with the `LOG_LEVEL` environment variable.
 
-# e2e tests
-$ yarn run test:e2e
+### Metrics (Prometheus)
 
-# test coverage
-$ yarn run test:cov
-```
+The application exposes a `/metrics` endpoint with metrics in the Prometheus format. Custom metrics include:
 
-## Support
+- `url_shortened_total`: Total number of URLs shortened.
+- `url_redirect_total`: Total redirects, labeled by `short_code`.
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+### Tracing (OpenTelemetry)
 
-## Stay in touch
+Distributed tracing is implemented using the OpenTelemetry standard.
 
-- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+- To enable, set `OTEL_ENABLED=true`.
+- To configure a backend (like Jaeger or Datadog), set the `OTEL_EXPORTER_OTLP_TRACES_ENDPOINT` variable.
+
+---
+
+## Future Improvements & Scaling Challenges
+
+For a horizontally-scaled, high-throughput environment, the following challenges and improvements should be considered:
+
+#### 1. `shortCode` Uniqueness Guarantee
+
+- **Challenge:** A race condition could occur where two instances generate the same `shortCode` simultaneously.
+- **Solution:** Implement a retry-on-conflict mechanism or, for very high scale, use a centralized ID generation service (like Twitter's Snowflake) to pre-generate unique IDs.
+
+#### 2. Cache Invalidation
+
+- **Challenge:** If a cache (like Redis) is added, updating or deleting a URL on one instance could lead to other instances serving stale data from their cache.
+- **Solution:** Use a Pub/Sub system (like Redis Pub/Sub) for cache invalidation events, ensuring all instances clear the relevant cache key upon modification.
+
+#### 3. Centralized Configuration
+
+- **Challenge:** Managing `.env` files across multiple instances is not feasible.
+- **Solution:** Adopt a secret management service like **HashiCorp Vault**, **AWS Parameter Store**, or **Azure Key Vault** to centralize and securely manage application configuration.
+
+---
 
 ## License
 
-Nest is [MIT licensed](LICENSE).
+This project is [UNLICENSED](./LICENSE).
