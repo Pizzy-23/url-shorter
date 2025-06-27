@@ -19,8 +19,8 @@
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
-    "test:services": "jest --testNamePattern=\\.service\\.spec\\.ts$",
-    "test:controllers": "jest --testNamePattern=\\.controller\\.spec\\.ts$"
+    "test:services": "jest test/service",
+    "test:controllers": "jest test/controller"
   },
   "dependencies": {
     "@nestjs/common": "^10.0.0",
@@ -75,6 +75,7 @@
     "typescript": "^5.1.3"
   },
   "jest": {
+    "preset": "ts-jest",
     "moduleFileExtensions": [
       "js",
       "json",
@@ -85,6 +86,9 @@
     "transform": {
       "^.+\\.(t|j)s$": "ts-jest"
     },
+    "transformIgnorePatterns": [
+      "/node_modules/(?!nanoid/.*)"
+    ],
     "collectCoverageFrom": [
       "**/*.(t|j)s"
     ],
