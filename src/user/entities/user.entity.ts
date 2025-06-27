@@ -1,4 +1,4 @@
-import { Url } from '../../urls/entities/url.entity';
+import { Url } from '@/urls/entities/url.entity';
 import {
   Entity,
   PrimaryGeneratedColumn,
