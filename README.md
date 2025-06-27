@@ -77,6 +77,9 @@ yarn test:services
 # Run only controller tests
 yarn test:controllers
 
+# Run only e2e tests
+yarn test:e2e
+
 # Run tests in watch mode
 yarn test:watch
 ```
