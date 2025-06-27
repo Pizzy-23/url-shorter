@@ -5,9 +5,10 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Url } from './entities/url.entity';
 import { ConfigModule } from '@nestjs/config';
 import { RedirectController } from './redirect.controller';
+import { MetricsModule } from '@/metrics/metrics.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Url]), ConfigModule],
+  imports: [TypeOrmModule.forFeature([Url]), ConfigModule, MetricsModule],
   controllers: [UrlController, RedirectController],
   providers: [UrlService],
   exports: [UrlService],

@@ -8,6 +8,7 @@ import { Url } from './entities/url.entity';
 import { CreateUrlDto } from './dto/create-url.dto';
 import { UpdateUrlDto } from './dto/update-url.dto';
 import { User } from '../user/entities/user.entity';
+import { MetricsService } from '../metrics/metrics.service';
 
 @Injectable()
 export class UrlService {
@@ -15,6 +16,7 @@ export class UrlService {
     @InjectRepository(Url)
     private readonly urlRepository: Repository<Url>,
     private readonly configService: ConfigService,
+    private readonly metricsService: MetricsService,
   ) {}
 
   async shorten(
@@ -23,6 +25,10 @@ export class UrlService {
   ): Promise<{ shortUrl: string }> {
     let shortCode: string;
     let isUnique = false;
+
+    this.metricsService.urlShortenedCounter.inc({
+      user_type: user ? 'authenticated' : 'anonymous',
+    });
 
     while (!isUnique) {
       shortCode = nanoid(6);
