@@ -4,10 +4,11 @@ import { UrlController } from './urls.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Url } from './entities/url.entity';
 import { ConfigModule } from '@nestjs/config';
+import { RedirectController } from './redirect.controller';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Url]), ConfigModule],
-  controllers: [UrlController],
+  controllers: [UrlController, RedirectController],
   providers: [UrlService],
   exports: [UrlService],
 })
