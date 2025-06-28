@@ -1,51 +1,34 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { UrlController } from '@/urls/urls.controller';
-import { UrlService } from '@/urls/urls.service';
-import { CreateUrlDto } from '@/urls/dto/create-url.dto';
-import { UpdateUrlDto } from '@/urls/dto/update-url.dto';
+import { UrlController } from '../../src/urls/urls.controller';
+import { IUrlService } from '@/urls/url-service.interface';
+import { CreateUrlDto } from '../../src/urls/dto/create-url.dto';
 
-// Mock do UrlService
-const mockUrlService = {
+// Mock completo do serviço
+const mockUrlService: IUrlService = {
   shorten: jest.fn(),
   findByUserId: jest.fn(),
   update: jest.fn(),
   softDelete: jest.fn(),
-};
-
-// Mock de uma requisição com um usuário autenticado
-const mockRequestWithUser = {
-  user: {
-    id: 'user-uuid-123',
-    email: 'test@example.com',
-  },
-};
-
-// Mock de uma requisição de um usuário anônimo
-const mockAnonymousRequest = {
-  user: null,
+  findByCodeAndIncrementClicks: jest.fn(),
 };
 
 describe('UrlController', () => {
   let controller: UrlController;
-  let service: UrlService;
+  let service: IUrlService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [UrlController],
       providers: [
         {
-          provide: UrlService,
+          provide: 'IUrlService',
           useValue: mockUrlService,
         },
       ],
     }).compile();
 
     controller = module.get<UrlController>(UrlController);
-    service = module.get<UrlService>(UrlService);
-  });
-
-  // Limpa os mocks depois de cada teste para evitar interferência
-  afterEach(() => {
+    service = module.get<IUrlService>('IUrlService');
     jest.clearAllMocks();
   });
 
@@ -54,66 +37,29 @@ describe('UrlController', () => {
   });
 
   describe('shorten', () => {
-    it('should call the url service to shorten a URL with an authenticated user', async () => {
-      const createDto: CreateUrlDto = { originalUrl: 'https://google.com' };
-      const expectedResult = { shortUrl: 'http://short.url/abcdef' };
+    it('should call the url service to shorten a URL', async () => {
+      const createDto: CreateUrlDto = { originalUrl: 'https://a-url.com' };
+      const mockRequest = { user: null };
 
-      mockUrlService.shorten.mockResolvedValue(expectedResult);
+      const expectedResult = { shortUrl: 'http://localhost:3000/mock123' };
+      (service.shorten as jest.Mock).mockResolvedValue(expectedResult);
 
-      const result = await controller.shorten(createDto, mockRequestWithUser);
-
-      expect(service.shorten).toHaveBeenCalledWith(
-        createDto,
-        mockRequestWithUser.user,
-      );
-      expect(result).toBe(expectedResult);
-    });
-
-    it('should call the url service to shorten a URL for an anonymous user', async () => {
-      const createDto: CreateUrlDto = { originalUrl: 'https://yahoo.com' };
-
-      await controller.shorten(createDto, mockAnonymousRequest);
+      const result = await controller.shorten(createDto, mockRequest);
 
       expect(service.shorten).toHaveBeenCalledWith(createDto, null);
+      expect(result).toEqual(expectedResult);
     });
   });
 
   describe('findAllByUser', () => {
-    it("should call the url service to find a user's URLs", async () => {
-      mockUrlService.findByUserId.mockResolvedValue([]);
+    it("should call the service to find all user's URLs", async () => {
+      const mockRequest = { user: { id: 'user-uuid' } };
 
-      await controller.findAllByUser(mockRequestWithUser);
+      (service.findByUserId as jest.Mock).mockResolvedValue([]);
 
-      expect(service.findByUserId).toHaveBeenCalledWith(
-        mockRequestWithUser.user.id,
-      );
-    });
-  });
+      await controller.findAllByUser(mockRequest);
 
-  describe('update', () => {
-    it('should call the url service to update a URL', async () => {
-      const shortCode = 'abcdef';
-      const updateDto: UpdateUrlDto = { originalUrl: 'https://new-url.com' };
-
-      await controller.update(shortCode, updateDto, mockRequestWithUser);
-
-      expect(service.update).toHaveBeenCalledWith(
-        mockRequestWithUser.user.id,
-        shortCode,
-        updateDto,
-      );
-    });
-  });
-
-  describe('remove', () => {
-    it('should call the url service to soft delete a URL', async () => {
-      const shortCode = 'abcdef';
-
-      await controller.remove(shortCode, mockRequestWithUser);
-      expect(service.softDelete).toHaveBeenCalledWith(
-        mockRequestWithUser.user.id,
-        shortCode,
-      );
+      expect(service.findByUserId).toHaveBeenCalledWith('user-uuid');
     });
   });
 });

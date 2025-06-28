@@ -1,31 +1,32 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { UserController } from '@/user/user.controller';
-import { UserService } from '@/user/user.service';
-import { User } from '@/user/entities/user.entity';
+import { UserController } from '../../src/user/user.controller';
+import { User } from '../../src/user/entities/user.entity';
+import { IUserService } from '@/user/user-service.interface';
 
-// Mock do UserService
-const mockUserService = {
+const mockUserService: IUserService = {
   create: jest.fn(),
   findAll: jest.fn(),
+  findByEmail: jest.fn(),
+  findById: jest.fn(),
 };
 
 describe('UserController', () => {
   let controller: UserController;
-  let service: UserService;
+  let service: IUserService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [UserController],
       providers: [
         {
-          provide: UserService,
-          useValue: mockUserService, // Usamos nosso mock
+          provide: 'IUserService',
+          useValue: mockUserService,
         },
       ],
     }).compile();
 
     controller = module.get<UserController>(UserController);
-    service = module.get<UserService>(UserService);
+    service = module.get<IUserService>('IUserService');
   });
 
   afterEach(() => {
@@ -39,7 +40,7 @@ describe('UserController', () => {
   describe('findAll', () => {
     it('should call the user service to find all users and return them', async () => {
       const usersArray = [new User(), new User()];
-      mockUserService.findAll.mockResolvedValue(usersArray);
+      (service.findAll as jest.Mock).mockResolvedValue(usersArray);
 
       const result = await controller.findAll();
 

@@ -1,35 +1,33 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { AuthController } from '@/auth/auth.controller';
-import { AuthService } from '@/auth/auth.service';
-import { CreateUserDto } from '@/user/dto/create-user.dto';
-import { LoginDto } from '@/auth/dto/login.dto';
+import { AuthController } from '../../src/auth/auth.controller';
+import { CreateUserDto } from '../../src/user/dto/create-user.dto';
+import { LoginDto } from '../../src/auth/dto/login.dto';
+import { IAuthService } from '@/auth/auth-service.interface';
 
-// Mock do AuthService
-const mockAuthService = {
+const mockAuthService: IAuthService = {
   register: jest.fn(),
   login: jest.fn(),
 };
 
 describe('AuthController', () => {
   let controller: AuthController;
-  let service: AuthService;
+  let service: IAuthService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [AuthController],
       providers: [
         {
-          provide: AuthService,
+          provide: 'IAuthService', // MUDANÇA: Usamos o token
           useValue: mockAuthService,
         },
       ],
     }).compile();
 
     controller = module.get<AuthController>(AuthController);
-    service = module.get<AuthService>(AuthService);
+    service = module.get<IAuthService>('IAuthService'); // MUDANÇA: Buscamos o serviço pelo token
   });
 
-  // Limpa os mocks depois de cada teste
   afterEach(() => {
     jest.clearAllMocks();
   });
@@ -39,7 +37,7 @@ describe('AuthController', () => {
   });
 
   describe('register', () => {
-    it('should call auth service to register a new user', async () => {
+    it('should call the auth service to register a new user', async () => {
       const createUserDto: CreateUserDto = {
         email: 'test@example.com',
         password: 'password123',
@@ -51,7 +49,7 @@ describe('AuthController', () => {
         updatedAt: new Date(),
       };
 
-      mockAuthService.register.mockResolvedValue(expectedResponse);
+      (service.register as jest.Mock).mockResolvedValue(expectedResponse);
 
       const result = await controller.register(createUserDto);
 
@@ -61,14 +59,14 @@ describe('AuthController', () => {
   });
 
   describe('login', () => {
-    it('should call auth service to login a user and return an access token', async () => {
+    it('should call the auth service to login a user and return an access token', async () => {
       const loginDto: LoginDto = {
         email: 'test@example.com',
         password: 'password',
       };
       const expectedResponse = { accessToken: 'a-valid-jwt-token' };
 
-      mockAuthService.login.mockResolvedValue(expectedResponse);
+      (service.login as jest.Mock).mockResolvedValue(expectedResponse);
 
       const result = await controller.login(loginDto);
 
