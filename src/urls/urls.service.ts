@@ -9,9 +9,10 @@ import { CreateUrlDto } from './dto/create-url.dto';
 import { UpdateUrlDto } from './dto/update-url.dto';
 import { User } from '../user/entities/user.entity';
 import { MetricsService } from '../metrics/metrics.service';
+import { IUrlService } from './url-service.interface';
 
 @Injectable()
-export class UrlService {
+export class UrlService implements IUrlService {
   constructor(
     @InjectRepository(Url)
     private readonly urlRepository: Repository<Url>,

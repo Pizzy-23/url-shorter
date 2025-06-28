@@ -10,7 +10,12 @@ import { MetricsModule } from '@/metrics/metrics.module';
 @Module({
   imports: [TypeOrmModule.forFeature([Url]), ConfigModule, MetricsModule],
   controllers: [UrlController, RedirectController],
-  providers: [UrlService],
-  exports: [UrlService],
+  providers: [
+    {
+      provide: 'IUrlService',
+      useClass: UrlService,
+    },
+  ],
+  exports: ['IUrlService'],
 })
 export class UrlsModule {}

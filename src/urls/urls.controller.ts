@@ -10,6 +10,7 @@ import {
   Delete,
   HttpCode,
   HttpStatus,
+  Inject,
 } from '@nestjs/common';
 import { UrlService } from './urls.service';
 import { CreateUrlDto } from './dto/create-url.dto';
@@ -22,11 +23,14 @@ import {
 } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { OptionalJwtAuthGuard } from '../auth/guards/optional-jwt-auth.guard';
+import { IUrlService } from './url-service.interface';
 
 @ApiTags('URLs')
 @Controller('urls')
 export class UrlController {
-  constructor(private readonly urlService: UrlService) {}
+  constructor(
+    @Inject('IUrlService') private readonly urlService: IUrlService,
+  ) {}
 
   @Post('shorten')
   @UseGuards(OptionalJwtAuthGuard)
