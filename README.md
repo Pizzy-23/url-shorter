@@ -86,7 +86,7 @@ yarn test:e2e
 yarn test:watch
 
 ---
-
+```
 ## Observability
 
 This project is instrumented with the foundations for a robust observability setup, essential for operating in a production environment.
