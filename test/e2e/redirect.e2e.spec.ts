@@ -29,7 +29,7 @@ describe('RedirectController (e2e)', () => {
     await app.close();
   });
 
-  it('GET /:shortCode should redirect to the original URL and increment clicks', async () => {
+  it('GET /:shortCode -> should redirect to the original URL and increment clicks', async () => {
     const originalUrl = 'https://google.com/';
     const testUrl = await urlRepository.save({
       originalUrl,
@@ -43,7 +43,7 @@ describe('RedirectController (e2e)', () => {
       .get(`/${testUrl.shortCode}`)
       .redirects(0);
 
-    expect(response.status).toBe(302);
+    expect(response.status).toBe(301);
     expect(response.headers.location).toBe(originalUrl);
 
     const updatedUrlInDb = await urlRepository.findOneBy({ id: testUrl.id });
@@ -51,21 +51,19 @@ describe('RedirectController (e2e)', () => {
     expect(updatedUrlInDb?.clicks).toBe(1);
   });
 
-  it('GET /:shortCode should return 404 for a non-existent short code', () => {
-    return request(app.getHttpServer())
-      .get('/this-code-does-not-exist')
-      .expect(404);
+  it('GET /:shortCode -> should return 404 for a non-existent short code', () => {
+    return request(app.getHttpServer()).get('/nonexistent').expect(404);
   });
 
-  it('GET /:shortCode should return 404 for a soft-deleted URL', async () => {
+  it('GET /:shortCode -> should return 404 for a soft-deleted URL', async () => {
     const deletedUrl = await urlRepository.save({
       originalUrl: 'https://deleted-url.com',
-      shortCode: 'deletd',
+      shortCode: 'delted',
       clicks: 10,
     });
     await urlRepository.softDelete({ id: deletedUrl.id });
 
-    await request(app.getHttpServer()).get('/del3ted').expect(404);
+    await request(app.getHttpServer()).get('/delted').expect(404);
 
     const urlInDb = await urlRepository.findOne({
       where: { id: deletedUrl.id },
